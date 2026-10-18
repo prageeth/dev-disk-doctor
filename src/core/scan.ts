@@ -1,20 +1,9 @@
 import os from 'node:os';
-import path from 'node:path';
 import { detectors } from '../detectors/index.js';
 import { run } from './exec.js';
-import { isDir, isInside } from './util.js';
+import { defaultRoots } from './roots.js';
+import { isInside } from './util.js';
 import type { DiskInfo, Finding, Risk, ScanOptions, ScanResult } from './types.js';
-
-const ROOT_CANDIDATES = ['dev', 'code', 'src', 'projects', 'work', 'workspace', 'workspaces', 'Developer', 'repos', 'git', 'Sites'];
-
-export async function defaultRoots(home: string): Promise<string[]> {
-  const out: string[] = [];
-  for (const n of ROOT_CANDIDATES) {
-    const p = path.join(home, n);
-    if (await isDir(p)) out.push(p);
-  }
-  return out;
-}
 
 export async function buildOptions(partial: Partial<ScanOptions> = {}): Promise<ScanOptions> {
   const home = partial.home ?? os.homedir();

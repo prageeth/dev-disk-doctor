@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { applyAction, findAction } from './core/fix.js';
 import { buildOptions, scan } from './core/scan.js';
 import { fmtBytes } from './core/util.js';
+import { version } from './core/version.js';
 import { auditWorktrees } from './worktrees/audit.js';
 import { auditToFindings } from './worktrees/detector.js';
 
@@ -23,7 +24,7 @@ const scanShape = {
 };
 
 export async function startMcp(): Promise<void> {
-  const server = new McpServer({ name: 'dev-disk-doctor', version: '0.1.0' });
+  const server = new McpServer({ name: 'dev-disk-doctor', version: version() });
 
   server.registerTool(
     'disk_scan',

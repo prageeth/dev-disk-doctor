@@ -28,6 +28,7 @@ export function renderScan(r: ScanResult, style: Style, opts: { limit?: number }
       `${p.bold(fmtBytes(r.totals.reclaimableBytes))} could be reclaimed with actions this tool can run ` +
       `(${fmtBytes(r.totals.bytesByRisk.safe)} safe, ${fmtBytes(r.totals.bytesByRisk.review)} needs a look, ${fmtBytes(r.totals.bytesByRisk.danger)} careful).`,
   );
+  out.push(p.dim(`Searched for projects in: ${r.options.roots.map((x) => x.replace(r.host.home, '~')).join(', ') || 'no workspace folders found (use --root <dir>)'}`));
   out.push('');
 
   const limit = opts.limit ?? 25;

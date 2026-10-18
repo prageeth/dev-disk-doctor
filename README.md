@@ -9,6 +9,53 @@ npx dev-disk-doctor            # scan, read-only
 npx dev-disk-doctor worktrees  # how many git worktrees do I have, and which are leftovers?
 ```
 
+## Getting started
+
+You need [Node.js](https://nodejs.org) 18 or newer. Nothing else to install.
+
+1. **Scan** (read-only, about a minute on a big disk):
+   ```bash
+   npx dev-disk-doctor
+   ```
+   You get a ranked list. Each item says what it is, how big it is, how risky deleting it is, and the exact command to fix it.
+2. **Check the git worktrees** (also read-only):
+   ```bash
+   npx dev-disk-doctor worktrees
+   ```
+3. **Fix one item at a time.** Copy the `id:` shown under an action. This shows what would happen and changes nothing:
+   ```bash
+   npx dev-disk-doctor fix "docker:build-cache#prune"
+   ```
+   Add `--yes` to actually run it.
+4. **Or let an AI agent drive it**; see [Use it with an AI agent](#use-it-with-an-ai-agent-mcp) below.
+
+To install it globally instead of using `npx`: `npm install -g dev-disk-doctor`, then run `dev-disk-doctor`.
+
+## Where it looks for your projects
+
+Projects, `node_modules` and git worktrees are searched in your *workspace folders*. You don't have to configure them:
+
+- Common names directly under your home folder are always used if they exist: `dev`, `code`, `src`, `projects`, `work`, `workspace`, `workspaces`, `Developer`, `repos`, `git`, `Sites`.
+- **Any other visible folder directly under your home that contains a git repo or project** within three levels is picked up too. So a company folder such as `~/acme` is found automatically, even though it has an arbitrary name.
+- Also checked automatically, for worktrees: the places AI coding tools park them (`~/.codex/worktrees`, `~/.cursor/worktrees`, `~/.claude/worktrees`, `~/conductor`), and `.claude/worktrees` inside any repo.
+- Never searched by default: `~/Documents`, `~/Desktop`, `~/Downloads`, `~/Library`, `~/Applications`, hidden folders, and cloud-sync folders (Dropbox, OneDrive, Google Drive, iCloud…), because they are slow and can trigger permission prompts.
+
+See what it will use:
+
+```bash
+npx dev-disk-doctor roots
+```
+
+Override it when your code lives somewhere else (for example `~/Documents/GitHub` or an external drive):
+
+```bash
+npx dev-disk-doctor --root ~/Documents/GitHub --root /Volumes/Work/code
+# or, for every run:
+export DEV_DISK_DOCTOR_ROOTS="$HOME/Documents/GitHub:/Volumes/Work/code"
+```
+
+When you pass `--root` or set `DEV_DISK_DOCTOR_ROOTS`, auto-discovery is turned off and only those folders are searched.
+
 ## What it checks
 
 | Area | Examples |
@@ -60,12 +107,11 @@ No MCP? Give your agent the playbook in [`skills/dev-disk-doctor/SKILL.md`](skil
 dev-disk-doctor [scan]            Scan for space hogs (read-only)
 dev-disk-doctor worktrees         Audit git worktrees across all your repos
 dev-disk-doctor fix <action-id>   Show what an action does; add --yes to run it
+dev-disk-doctor roots             Show which workspace folders will be searched
 dev-disk-doctor mcp               Start the MCP server on stdio
 
 --json  --root <dir>  --min-size <MB>  --stale-days <n>  --only <detector>  --deep  --all  --yes
 ```
-
-Workspace roots default to whichever of `~/dev ~/code ~/src ~/projects ~/work ~/workspace ~/Developer ~/repos` exist. Pass `--root` to add your own.
 
 ## Why does macOS say "Documents" is 230 GB?
 
@@ -91,6 +137,24 @@ npm run scan    # build and run against your machine
 ```
 
 The scanner core is in `src/core`, one file per area in `src/detectors`, the worktree audit in `src/worktrees`, and the MCP server in `src/mcp.ts`. See [PLAN.md](PLAN.md) for the design.
+
+## Releasing (maintainers)
+
+Publishing is automated by `.github/workflows/release.yml` when a version tag is pushed.
+
+One-time setup:
+
+1. Create an npm *automation* access token (npmjs.com → Access Tokens) with publish rights.
+2. Add it to this repo as the Actions secret `NPM_TOKEN`.
+
+Each release:
+
+```bash
+npm version patch        # or minor / major; bumps package.json and creates the v* tag
+git push --follow-tags
+```
+
+The workflow checks the tag matches `package.json`, runs the tests, publishes to npm with provenance, and creates a GitHub release with generated notes. `npm publish` also runs the tests locally through `prepublishOnly`.
 
 ## License
 

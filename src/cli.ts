@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { applyAction } from './core/fix.js';
 import { buildOptions, scan } from './core/scan.js';
+import { version } from './core/version.js';
 import type { ScanOptions } from './core/types.js';
 import { expandHome } from './core/util.js';
 import { renderScan, renderWorktrees } from './report/text.js';
@@ -15,12 +14,15 @@ Usage
   dev-disk-doctor [scan]            Scan for space hogs (read-only)
   dev-disk-doctor worktrees         Audit git worktrees across all your repos (read-only)
   dev-disk-doctor fix <action-id>   Show what an action would do; add --yes to run it
+  dev-disk-doctor roots             Show which workspace folders will be searched
   dev-disk-doctor mcp               Start the MCP server on stdio (for AI agents)
 
 Options
   --json                 Machine-readable output (stable schema)
-  --root <dir>           Workspace folder to search for projects and repos (repeatable;
-                         default: ~/dev ~/code ~/src ~/projects ~/work ... whichever exist)
+  --root <dir>           Workspace folder to search for projects and repos (repeatable).
+                         Default: ~/dev ~/code ~/src ... plus any other folder directly under
+                         your home that contains a git repo (e.g. ~/acme). Also settable with
+                         DEV_DISK_DOCTOR_ROOTS=/path/a:/path/b. Run "roots" to see the result.
   --min-size <MB>        Ignore items smaller than this (default 100)
   --stale-days <n>       Days idle before a project or worktree counts as stale (default 30)
   --only <detector>      Run one detector (docker, android, xcode, pkgcaches, browsers,
@@ -77,18 +79,6 @@ function parse(argv: string[]): Parsed {
   return p;
 }
 
-function version(): string {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  for (const rel of ['../package.json', '../../package.json']) {
-    try {
-      return (JSON.parse(readFileSync(path.join(here, rel), 'utf8')) as { version: string }).version;
-    } catch {
-      /* try next */
-    }
-  }
-  return 'unknown';
-}
-
 async function options(p: Parsed): Promise<ScanOptions> {
   const home = process.env.HOME ?? '';
   return buildOptions({
@@ -112,6 +102,13 @@ async function main(): Promise<void> {
     case 'mcp': {
       const { startMcp } = await import('./mcp.js');
       await startMcp();
+      return;
+    }
+    case 'roots': {
+      const opts = await options(p);
+      if (p.json) console.log(JSON.stringify({ roots: opts.roots }, null, 2));
+      else if (opts.roots.length) console.log(opts.roots.join('\n'));
+      else console.log('No workspace folders found under your home. Pass --root <dir> or set DEV_DISK_DOCTOR_ROOTS.');
       return;
     }
     case 'scan': {
