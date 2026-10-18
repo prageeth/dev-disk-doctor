@@ -1,0 +1,58 @@
+{
+  "name": "dev-disk-doctor",
+  "version": "0.1.0",
+  "description": "Why is my disk full? A read-only disk and git-worktree doctor for developer machines (Docker, Xcode, Android, node_modules, caches). CLI + MCP server for AI agents.",
+  "license": "MIT",
+  "author": "Prageeth Silva",
+  "type": "module",
+  "bin": {
+    "dev-disk-doctor": "dist/src/cli.js",
+    "dev-disk-doctor-mcp": "dist/src/mcp.js"
+  },
+  "files": [
+    "dist/src",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "scan": "npm run build && node dist/src/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pureartisan/dev-disk-doctor.git"
+  },
+  "homepage": "https://github.com/pureartisan/dev-disk-doctor#readme",
+  "bugs": {
+    "url": "https://github.com/pureartisan/dev-disk-doctor/issues"
+  },
+  "keywords": [
+    "disk-space",
+    "disk-usage",
+    "cleanup",
+    "macos",
+    "storage",
+    "docker",
+    "xcode",
+    "android-sdk",
+    "node_modules",
+    "git-worktree",
+    "mcp",
+    "mcp-server",
+    "developer-tools",
+    "cli"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  }
+}
