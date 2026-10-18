@@ -1,6 +1,6 @@
 # dev-disk-doctor: plan
 
-Repo: https://github.com/prageeth/dev-disk-doctor · npm: `dev-disk-doctor` (unclaimed) · License: MIT
+Repo: https://github.com/pureartisan/dev-disk-doctor · npm: `dev-disk-doctor` (unclaimed) · License: MIT
 
 ## Problem
 
