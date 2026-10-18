@@ -140,21 +140,7 @@ The scanner core is in `src/core`, one file per area in `src/detectors`, the wor
 
 ## Releasing (maintainers)
 
-Publishing is automated by `.github/workflows/release.yml` when a version tag is pushed.
-
-One-time setup:
-
-1. Create an npm *automation* access token (npmjs.com → Access Tokens) with publish rights.
-2. Add it to this repo as the Actions secret `NPM_TOKEN`.
-
-Each release:
-
-```bash
-npm version patch        # or minor / major; bumps package.json and creates the v* tag
-git push --follow-tags
-```
-
-The workflow checks the tag matches `package.json`, runs the tests, publishes to npm with provenance, and creates a GitHub release with generated notes. `npm publish` also runs the tests locally through `prepublishOnly`.
+Pushing a `v*` tag publishes to npm through GitHub Actions. Setup, the release steps, how to verify a release and troubleshooting are in [docs/RELEASING.md](docs/RELEASING.md).
 
 ## License
 
